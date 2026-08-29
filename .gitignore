@@ -1,0 +1,134 @@
+# ============================================
+# Revoice
+# ============================================
+
+# --------------------
+# Secrets / Environment
+# --------------------
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.p12
+*.p8
+*.mobileprovision
+
+# --------------------
+# macOS
+# --------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --------------------
+# Node / React Native / Expo
+# --------------------
+node_modules/
+
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --------------------
+# iOS generated files
+# --------------------
+ios/Pods/
+ios/build/
+ios/DerivedData/
+
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# --------------------
+# Android generated files
+# --------------------
+android/.gradle/
+android/build/
+android/app/build/
+
+*.jks
+*.keystore
+
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+ENV/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --------------------
+# Jupyter
+# --------------------
+.ipynb_checkpoints/
+
+# --------------------
+# ML / Hugging Face caches
+# --------------------
+.cache/
+huggingface/
+.huggingface/
+
+# Model checkpoints / weights
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+
+# --------------------
+# Datasets / large training data
+# --------------------
+data/raw/
+datasets/
+TORGO/
+torgo/
+
+# --------------------
+# Training checkpoints
+# --------------------
+checkpoints/
+models/
+
+# --------------------
+# Temporary files
+# --------------------
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# --------------------
+# Coverage
+# --------------------
+coverage/
+
+# --------------------
+# IDE
+# --------------------
+.vscode/
+.idea/
+
+# --------------------
+# AI coding-tool configuration
+# --------------------
+.claude/
+CLAUDE.md
+AGENTS.md
