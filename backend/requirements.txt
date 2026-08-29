@@ -1,0 +1,15 @@
+# --- web layer ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.12
+pydantic>=2.9.0
+pydantic-settings>=2.6.0
+
+# --- ASR ---
+# faster-whisper is local Whisper (CTranslate2 runtime). It decodes m4a/webm/ogg
+# through PyAV, so an ffmpeg binary is optional rather than required.
+faster-whisper>=1.1.0
+
+# The reference implementation (ASR_BACKEND=openai-whisper) is intentionally NOT
+# installed by default -- it pulls in torch (~2 GB) and requires ffmpeg on PATH:
+#   pip install openai-whisper
