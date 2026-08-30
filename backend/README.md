@@ -4,13 +4,16 @@ FastAPI service for the speech pipeline:
 
 ```
 Expo audio -> POST /process-speech -> (optional ffmpeg normalise) -> local Whisper
-           -> status + placeholder repair -> system TTS -> JSON (+ /audio/*.wav)
+           -> N-best hypotheses -> constrained selector (suggestion-first)
+           -> status + suggestion -> system TTS -> JSON (+ /audio/*.wav)
 ```
 
-The **trained repair model is not implemented yet** — `repaired_text` is the ASR
-transcript, tidied but never reworded. Uncertainty is a plain word-probability
-threshold, and TTS is the OS voice. All three are placeholders behind interfaces,
-so the response contract does not change when the real versions land.
+Repair is the **constrained suggestion-first selector** described in
+"Repair: constrained hypothesis selection" below (`REPAIR_BACKEND=selector`) —
+`repaired_text` is always the verbatim ASR sentence, with the selector's
+preferred alternative offered separately for one-tap confirmation. With
+`REPAIR_BACKEND=none|passthrough` the pre-selector placeholder behaviour is
+preserved unchanged. TTS is the OS voice.
 
 ---
 
@@ -299,3 +302,50 @@ right `WHISPER_COMPUTE_TYPE` there.
       probability threshold with no alternatives generator
 - [ ] **4. TTS** — `app/services/tts.py` shells out to the OS voice
 - [ ] **5. Evaluation harness** — `../evaluation/`
+
+## Repair: constrained hypothesis selection (suggestion-first)
+
+Deployed pipeline:
+
+```
+speech → Whisper medium.en → A0 transcript
+       → CTranslate2 N-best (beam 12 → top-4 unique alternatives)
+       → hybrid list  H1=A0, H2..H5
+       → 21-feature extraction per candidate
+       → D3-NL constrained selector (tiny MLP, NumPy inference)
+       → suggestion-first decision → Revoice UI
+```
+
+**The selector can only choose from actual Whisper hypotheses. It does not
+freely generate replacement sentences.** A runtime invariant re-verifies that
+every surfaced string is a member of the utterance's own hypothesis list.
+
+**Suggestion-first policy (why it exists):** the research evaluation showed
+that optimal switching thresholds vary substantially across speakers, and a
+single global threshold did not preserve the required safety/precision
+properties for unknown speakers. The deployed product therefore NEVER silently
+replaces the transcript:
+
+- selector prefers A0 → `KEEP_A0`: existing behaviour, auto-speak.
+- selector prefers an alternative → `UNCERTAIN`: `repaired_text` stays A0 and
+  the preferred hypothesis is returned as `suggested_text` (also
+  `alternatives[0]`). The app shows "I think you said …" with one-tap
+  confirmation; only after the user confirms does that text get spoken.
+  Automatic switching is disabled (`policy.auto_switch_enabled=false` in the
+  artifact). `suggestion_tau` (0.35) grades suggestion strength only.
+
+Future personalization could use accumulated user confirmations to calibrate
+automatic repair per speaker; that is explicitly not built.
+
+**Research vs product:** the citable research result is the frozen D2 LOSO
+evaluation (WER 0.3175 → 0.2849, preservation 98.9%, 0% unsupported
+generation). The deployed weights are the D3-NL development-stage selector
+chosen for its stronger safety profile; it is not independently validated on
+unseen speakers, and fold-specific research thresholds do not describe this
+deployed policy.
+
+Configuration (`.env`): `WHISPER_MODEL=medium.en` (all quoted repair metrics
+were measured on medium.en), `REPAIR_BACKEND=selector|passthrough|none`
+(`none` = exact pre-selector behaviour; any artifact problem also fails closed
+to it), `REPAIR_MODEL_PATH=app/assets/revoice_selector_v1.json`,
+`REPAIR_SWITCH_MARGIN` (optional suggestion-strength override; logged loudly).

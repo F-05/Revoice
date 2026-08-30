@@ -23,6 +23,9 @@ def test_returns_the_documented_contract(client: TestClient, wav_bytes: bytes) -
     assert 0.0 <= body["confidence"] <= 1.0
     assert body["uncertain_words"] == []
     assert body["audio_url"] is None  # TTS_BACKEND=none in tests
+    # Contract extended additively for the constrained-selector repair
+    # (API_CONTRACT.md): repair_available/decision/repair_decision/
+    # suggested_text/alternatives. Legacy fields are unchanged.
     assert set(body) == {
         "status",
         "raw_transcript",
@@ -30,7 +33,13 @@ def test_returns_the_documented_contract(client: TestClient, wav_bytes: bytes) -
         "confidence",
         "uncertain_words",
         "audio_url",
+        "repair_available",
+        "decision",
+        "repair_decision",
+        "suggested_text",
+        "alternatives",
     }
+    assert body["repair_available"] is False  # passthrough repair, no selector
 
 
 def test_low_word_confidence_becomes_uncertain(

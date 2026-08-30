@@ -79,6 +79,15 @@ async def process_speech(
         result = await run_in_threadpool(
             asr.transcribe, audio_path, language=settings.language
         )
+
+        # Constrained selector repair needs the audio (for the N-best pass),
+        # so it runs before cleanup. `select` returns None whenever it cannot
+        # or should not run, and the legacy path below is used unchanged.
+        selection = None
+        if hasattr(repairer, "select"):
+            selection = await run_in_threadpool(
+                repairer.select, audio_path, result, asr
+            )
     finally:
         audio_service.cleanup(*temp_files)
 
@@ -96,7 +105,22 @@ async def process_speech(
             confidence=result.confidence,
         )
 
-    repaired = repairer.repair(result)
+    if selection is not None:
+        # Runtime invariant: the selector's output is always a member of its
+        # own hypothesis list; `decide()` enforces it and falls back to A0.
+        repaired = selection.final_display
+        # KEEP_A0 says nothing about ASR confidence — it only means the
+        # selector chose not to alter A0. The legacy confidence-driven status
+        # therefore stands for KEEP_A0; only UNCERTAIN overrides it.
+        if selection.decision == "UNCERTAIN":
+            status = "uncertain"
+        logger.debug(
+            "selector: %s margin=%s candidates=%d nbest=%.0fms select=%.0fms",
+            selection.decision, selection.margin, selection.n_candidates,
+            selection.nbest_ms or -1, selection.selector_ms or -1,
+        )
+    else:
+        repaired = repairer.repair(result)
 
     # Only speak a sentence we are actually going to hand over. An uncertain
     # sentence still has a hole in it, so there is nothing to synthesise yet.
@@ -110,6 +134,34 @@ async def process_speech(
         status, asr.name, len(result.text), _fmt(result.confidence),
         audio_url or "none", _elapsed_ms(started),
     )
+
+    if selection is not None:
+        from app.models.schemas import RepairAlternative
+
+        # Contract bands. KEEP_A0 sends decision=null so the frontend keeps
+        # deriving its band from the EXISTING status + ASR-confidence mapping —
+        # the selector's agreement is not an ASR-confidence claim. UNCERTAIN
+        # never auto-speaks: a strong suggestion maps to "medium" (the
+        # confident "I think you said..." one-tap flow), a weak one to "low".
+        if selection.decision == "UNCERTAIN":
+            decision_band = ("medium" if selection.suggestion_strength == "strong"
+                             else "low")
+        else:
+            decision_band = None
+        return ProcessSpeechResponse(
+            status=status,
+            raw_transcript=result.text,
+            repaired_text=repaired,
+            confidence=result.confidence,
+            uncertain_words=([uncertain_word] if uncertain_word
+                             and selection.decision != "UNCERTAIN" else []),
+            audio_url=audio_url,
+            repair_available=True,
+            decision=decision_band,
+            repair_decision=selection.decision,
+            suggested_text=selection.suggested_text,
+            alternatives=[RepairAlternative(text=t) for t in selection.alternatives],
+        )
 
     return ProcessSpeechResponse(
         status=status,

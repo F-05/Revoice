@@ -63,6 +63,29 @@ class ProcessSpeechResponse(BaseModel):
     # (e.g. "/audio/result-ab12.wav"). Null when no audio was produced.
     audio_url: str | None = None
 
+    # --- constrained-selector repair (additive; see API_CONTRACT.md) --------
+    # False when no repair model ran and `repaired_text` is just tidied ASR.
+    repair_available: bool = False
+    # Contract band for the frontend: "high" | "medium" | "low". Rule-based,
+    # never a probability. Null when the selector did not run.
+    decision: str | None = None
+    # The selector's raw action, for transparency: KEEP_A0 | UNCERTAIN.
+    # (Automatic SWITCH is disabled in the deployed suggestion-first policy.)
+    repair_decision: str | None = None
+    # The selector's preferred alternative when repair_decision=UNCERTAIN.
+    # The frontend shows it as "I think you said ..." with one-tap accept.
+    # Always a real ASR hypothesis; also always alternatives[0].
+    suggested_text: str | None = None
+    # Alternative complete sentences (real ASR hypotheses, best first).
+    # `confidence` is always null: the selector's score is not calibrated and
+    # is deliberately not exposed as a probability.
+    alternatives: list["RepairAlternative"] = Field(default_factory=list)
+
+
+class RepairAlternative(BaseModel):
+    text: str
+    confidence: float | None = None
+
 
 class ErrorDetail(BaseModel):
     code: str
