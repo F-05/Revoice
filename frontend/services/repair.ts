@@ -162,7 +162,14 @@ export function shouldAutoSpeak(
  */
 export function resolveRepair(response: ProcessSpeechResponse): RepairOutcome {
   const rawTranscript = (response.raw_transcript ?? '').trim();
-  const bestRaw = (response.repaired_text ?? response.raw_transcript ?? '').trim();
+  // Suggestion-first backend: `repaired_text` stays the verbatim ASR sentence
+  // and the selector's preferred hypothesis arrives in `suggested_text`. The
+  // suggestion becomes the prediction the user confirms with one tap, and the
+  // ASR sentence is kept as the first alternative so "keep what I said" is
+  // always one tap away too. Nothing is ever auto-spoken on this path: the
+  // backend marks these responses `uncertain`, which maps to medium/low.
+  const suggestion = (response.suggested_text ?? '').trim();
+  const bestRaw = suggestion || (response.repaired_text ?? response.raw_transcript ?? '').trim();
   const bestText = tidySentence(bestRaw);
   const hasText = bestText.length > 0;
 
@@ -172,8 +179,11 @@ export function resolveRepair(response: ProcessSpeechResponse): RepairOutcome {
       : deriveDecision(response, hasText);
 
   const supplied = Array.isArray(response.alternatives) ? response.alternatives : [];
+  const withKeepOriginal = suggestion && response.repaired_text
+    ? [{ text: response.repaired_text, confidence: null }, ...supplied]
+    : supplied;
   const alternatives = cleanAlternatives(
-    supplied.length > 0 ? supplied : alternativesFromUncertainWords(response),
+    withKeepOriginal.length > 0 ? withKeepOriginal : alternativesFromUncertainWords(response),
     bestText,
   );
 

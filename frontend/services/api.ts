@@ -216,6 +216,7 @@ function normalize(raw: Partial<ProcessSpeechResponse> | null): ProcessSpeechRes
       ? (raw!.decision as RepairDecision)
       : null,
     repair_available: typeof raw?.repair_available === 'boolean' ? raw.repair_available : null,
+    suggested_text: typeof raw?.suggested_text === 'string' ? raw.suggested_text : null,
     uncertain_words: Array.isArray(raw?.uncertain_words) ? raw!.uncertain_words! : [],
     audio_url: raw?.audio_url ?? null,
   };

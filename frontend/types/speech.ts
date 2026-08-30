@@ -65,6 +65,12 @@ export type ProcessSpeechResponse = {
    * make. Optional; treated as unknown when absent.
    */
   repair_available?: boolean | null;
+  /**
+   * The backend selector's preferred alternative (suggestion-first policy).
+   * When present, the UI shows it as the "I think you said ..." prediction
+   * while `repaired_text` stays the verbatim ASR sentence.
+   */
+  suggested_text?: string | null;
   /** Legacy word-level uncertainty. */
   uncertain_words: UncertainWord[];
   /** Absolute URL, or a path like `/audio/result.wav` relative to the API base. */
