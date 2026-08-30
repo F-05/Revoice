@@ -3,7 +3,7 @@
 **Your voice, made clear.**
 
 Revoice is an accessibility-focused speech clarification app for people whose
-speech may be difficult for conventional speech recognition — or listeners —
+speech may be difficult for conventional speech recognition or listeners
 to understand. It transcribes speech locally, conservatively repairs likely
 recognition errors, and speaks the clarified sentence aloud. Revoice tries to
 preserve what the speaker actually meant: it never freely rewrites speech, and
@@ -14,7 +14,7 @@ meaning.
 ## Problem
 
 Conventional ASR can struggle with atypical speech, including dysarthric
-speech. A wrong transcription makes communication harder — especially when the
+speech. A wrong transcription makes communication harder, especially when the
 burden falls on the speaker to repeat themselves again and again. Revoice
 explores whether *multiple* ASR hypotheses of the same utterance can be used
 to recover a clearer interpretation, while remaining strictly conservative
