@@ -61,5 +61,15 @@ class PassthroughRepairService(RepairService):
 
 
 def build_repair_service(settings: Settings) -> RepairService:
-    """Instantiate the repair implementation. One option for now."""
+    """Instantiate the repair implementation named by settings.
+
+    `selector` fails closed: if its artifact cannot be loaded and validated it
+    behaves exactly like the passthrough, and transcription is never blocked.
+    """
+    if settings.repair_backend == "none":
+        return NoOpRepairService()
+    if settings.repair_backend == "selector":
+        from app.services.selector_repair import SelectorRepairService
+
+        return SelectorRepairService(settings)
     return PassthroughRepairService()

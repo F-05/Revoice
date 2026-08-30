@@ -50,6 +50,17 @@ class Settings(BaseSettings):
     # `uncertain_word_threshold` to make the mock return status="uncertain".
     mock_word_probability: float = 0.95
 
+    # --- repair (constrained hypothesis selector) ---------------------------
+    # none        -> A0-only behaviour, exactly as before the selector existed
+    # passthrough -> legacy tidy-only repair
+    # selector    -> hybrid N-best + frozen D3-NL selector (needs the artifact)
+    repair_backend: Literal["none", "passthrough", "selector"] = "passthrough"
+    # Path to the versioned selector artifact (revoice_selector_v1.json).
+    repair_model_path: str | None = None
+    # Operational override for the switching margin. None -> use the value
+    # frozen inside the artifact. An active override is logged loudly.
+    repair_switch_margin: float | None = None
+
     # --- response status ----------------------------------------------------
     # Overall confidence below this -> status="retry" (ask for another take).
     retry_confidence_threshold: float = 0.35
