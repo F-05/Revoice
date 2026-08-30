@@ -1,0 +1,18 @@
+{
+ "A0_whisper_medium_en": 0.3175,
+ "D2_frozen_research_LOSO": 0.2849,
+ "D3NL_development": 0.2853,
+ "frozen_H1H5_oracle": 0.2132,
+ "overnight": {
+  "P3_union_pool_oracle_cap24": 0.1644,
+  "P3_union_pool_oracle_uncapped": 0.1531,
+  "E02_mbr_medoid": 0.3086,
+  "E05_frozen_ranker": 0.2849,
+  "E05_p3_ranker": 0.2897,
+  "E05_p3_synth_ranker": 0.3175,
+  "E06_wmed_sum_nll_argmin": 0.2938,
+  "E06_wmed_anchored": 0.3005
+ },
+ "all_dev_grade": true,
+ "notes": "683 headMic rows are development data; fresh-speaker confirmation required for every number."
+}
