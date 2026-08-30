@@ -1,0 +1,19 @@
+{
+ "wer": 0.27596679489775255,
+ "exact": 0.4260614934114202,
+ "improved": 78,
+ "worsened": 20,
+ "ratio": 3.9,
+ "switch_rate": 0.17569546120058566,
+ "edit_precision": 0.65,
+ "preservation": 0.9927007299270073,
+ "low_a0": 1.0432632880098887,
+ "low_new": 0.8133498145859085,
+ "low_harmful": 3,
+ "unseen_a0": 0.1466275659824047,
+ "unseen_new": 0.1378299120234604,
+ "unseen_imp": 2,
+ "unseen_wor": 2,
+ "unsupported_generation": 0.0,
+ "capture_of_frozen_oracle": 0.389983146499976
+}
