@@ -1,0 +1,37 @@
+.DS_Store
+
+# secrets / local config
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# javascript / expo
+node_modules/
+.expo/
+dist/
+web-build/
+*.tsbuildinfo
+
+# ios build products
+ios/
+DerivedData/
+*.xcuserdata
+
+# research bulk (never belongs on GitHub)
+datasets/
+data/
+synthetic/generated/
+checkpoints/
+caches/
+*.jsonl
+*.wav
+*.m4a
+!backend/tests/fixtures/*.wav
