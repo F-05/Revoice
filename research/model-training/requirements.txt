@@ -1,0 +1,25 @@
+# Revoice model-training / evaluation project.
+# Independent of ~/Desktop/speech-repair/ -- nothing here imports that project.
+
+# --- ASR (pinned to the version the Revoice backend runs) ---
+faster-whisper==1.2.1
+
+# --- dataset loading ---
+# datasets <4.0 decodes audio through soundfile; 4.x requires torchcodec/ffmpeg,
+# which this machine does not have.
+datasets>=3.6.0,<4.0
+huggingface-hub>=0.30.0
+soundfile>=0.12.1
+
+
+# --- evaluation ---
+jiwer>=3.0.4
+pandas>=2.2.0
+numpy>=1.26.0
+tqdm>=4.66.0
+
+# --- repair-model training (T5) ---
+torch>=2.4.0
+transformers>=4.44.0
+sentencepiece>=0.2.0
+accelerate>=0.34.0
